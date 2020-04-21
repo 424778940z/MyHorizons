@@ -43,6 +43,7 @@ namespace MyHorizons.Avalonia
         private bool playerLoading = false;
         private bool settingItem = false;
         private Dictionary<ushort, string>? itemDatabase;
+        private Dictionary<ushort, string>? itemSearchDatabase;
         private Dictionary<byte, string>[]? villagerDatabase;
 
         private readonly ItemGrid playerPocketsGrid;
@@ -163,7 +164,7 @@ namespace MyHorizons.Avalonia
 
         public void SetItem(Item item)
         {
-            if (SelectedItem != item && itemDatabase != null)
+            if (SelectedItem != item && itemDatabase != null && itemSearchDatabase != null)
             {
                 SelectedItem = item.Clone();
                 SetSelectedItemIndex();
@@ -175,9 +176,27 @@ namespace MyHorizons.Avalonia
             var selectBox = this.FindControl<ComboBox>("ItemSelectBox");
             selectBox.SelectionChanged += (o, e) =>
             {
-                if (!settingItem && selectBox.SelectedIndex > -1 && itemDatabase != null)
-                    SelectedItem = new Item(itemDatabase.Keys.ElementAt(selectBox.SelectedIndex),
+                if (!settingItem && selectBox.SelectedIndex > -1 && itemDatabase != null && itemSearchDatabase != null)
+                    SelectedItem = new Item(itemSearchDatabase.Keys.ElementAt(selectBox.SelectedIndex),
                         SelectedItem.Flags0, SelectedItem.Flags1, SelectedItem.Flags2, SelectedItem.Flags3, SelectedItem.UseCount);
+            };
+            var searchbox = this.FindControl<TextBox>("ItemSearchBox");
+            searchbox.LostFocus += (o, e) =>
+            {
+                if (searchbox.Text == null)
+                {
+                    itemSearchDatabase = itemDatabase;
+                    selectBox.Items = itemSearchDatabase.Values;
+                }
+                else
+                {
+                    var v = from d in itemDatabase where d.Value.StartsWith(searchbox.Text) select d;
+                    itemSearchDatabase = v.ToDictionary(v => v.Key, v => v.Value);
+                    if (itemSearchDatabase != null)
+                    {
+                        selectBox.Items = itemSearchDatabase.Values;
+                    }
+                }
             };
 
             this.FindControl<NumericUpDown>("Flag0Box").ValueChanged += (o, e) =>
