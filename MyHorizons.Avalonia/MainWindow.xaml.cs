@@ -190,7 +190,7 @@ namespace MyHorizons.Avalonia
                 }
                 else
                 {
-                    var v = from d in itemDatabase where d.Value.StartsWith(searchbox.Text) select d;
+                    var v = from d in itemDatabase where d.Value.Contains(searchbox.Text) select d;
                     itemSearchDatabase = v.ToDictionary(v => v.Key, v => v.Value);
                     if (itemSearchDatabase != null)
                     {
