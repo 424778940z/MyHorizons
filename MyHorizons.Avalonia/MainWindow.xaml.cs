@@ -144,9 +144,12 @@ namespace MyHorizons.Avalonia
         {
             if (itemDatabase != null)
             {
-                for (var i = 0; i < itemDatabase.Keys.Count; i++)
+                this.FindControl<TextBox>("ItemSearchBox").Text = null;
+                itemSearchDatabase = itemDatabase;
+                this.FindControl<ComboBox>("ItemSelectBox").Items = itemSearchDatabase.Values;
+                for (var i = 0; i < itemSearchDatabase.Keys.Count; i++)
                 {
-                    if (itemDatabase.Keys.ElementAt(i) == SelectedItem.ItemId)
+                    if (itemSearchDatabase.Keys.ElementAt(i) == SelectedItem.ItemId)
                     {
                         settingItem = true;
                         this.FindControl<ComboBox>("ItemSelectBox").SelectedIndex = i;
@@ -556,7 +559,10 @@ namespace MyHorizons.Avalonia
                         itemDatabase = ItemDatabaseLoader.LoadItemDatabase((uint)saveFile.GetRevision());
                         var itemsBox = this.FindControl<ComboBox>("ItemSelectBox");
                         if (itemDatabase != null)
-                            itemsBox.Items = itemDatabase.Values;
+                        {
+                            itemSearchDatabase = itemDatabase;
+                            itemsBox.Items = itemSearchDatabase.Values;
+                        }
 
                         // Set up connections
                         SetupUniversalConnections();
